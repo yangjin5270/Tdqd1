@@ -22,4 +22,10 @@
         android:layout_height="wrap_content"
         android:text="请选择需要上传的数据文件"
         android:id="@+id/upFileButton"/>
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar1"
+        android:visibility="gone"/>
+
 </LinearLayout>

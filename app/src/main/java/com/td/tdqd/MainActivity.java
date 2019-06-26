@@ -13,11 +13,14 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.os.Handler;
+import android.os.Message;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,6 +31,22 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
+
+    String dataPath="";
+
+    private ProgressBar progressBar;
+    Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            progressBar.setVisibility(View.GONE);
+            Toast.makeText(MainActivity.this,"处理完毕",Toast.LENGTH_SHORT).show();
+        }
+    };
+
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         textView.setText("Hello "+ getIntent().getStringExtra("username"));
         Button button = (Button)findViewById(R.id.upFileButton);
         button.setOnClickListener(this);
+        progressBar = (ProgressBar)findViewById(R.id.progressBar1);
     }
 
     @Override
@@ -65,26 +85,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
         if (requestCode == 1) {
+            progressBar.setVisibility(View.VISIBLE);
             Uri uri = data.getData();
-            Log.i( "------->",uri.getPath());
-            Log.i("------->",uri.getPath());
-            Log.i("------->",uri.getScheme());
-            Log.i("------->",uri.getHost());
-            try {
-                File file = new File(uri.getPath());
-                char[] chars = new char[1024];
-                FileReader fileReader = new FileReader(file);
-                StringBuffer stringBuffer = new StringBuffer();
-                while(fileReader.read(chars)!=-1){
-                    stringBuffer.append(chars);
+            dataPath = uri.getPath();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        File file = new File(dataPath);
+                        char[] chars = new char[1024];
+                        FileReader fileReader = new FileReader(file);
+                        StringBuffer stringBuffer = new StringBuffer();
+                        while(fileReader.read(chars)!=-1){
+                            stringBuffer.append(chars);
+                        }
+                        //Thread.sleep(3000);
+                        //Log.i("-------->",stringBuffer.toString());
+                        String[] strings = stringBuffer.toString().split("\n");
+                        Log.i("Array size",String.valueOf(strings.length));
+                        Log.i("String",strings[0]);
+                        Message message = handler.obtainMessage();
+                        message.what=1;
+                        handler.sendMessage(message);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-                //Log.i("-------->",stringBuffer.toString());
-                String[] strings = stringBuffer.toString().split("\n");
-                Log.i("Array size",String.valueOf(strings.length));
-                Log.i("String",strings[0]);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            }).start();
 
         }
 
