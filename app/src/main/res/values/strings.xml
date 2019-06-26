@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">TD助手</string>
+    <!-- Strings related to login -->
+    <string name="prompt_email">账号</string>
+    <string name="prompt_password">密码</string>
+    <string name="action_sign_in">登陆</string>
+    <string name="action_sign_in_short">登陆</string>
+    <string name="welcome">"欢迎您 !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"登陆失败"</string>
+    <string name="title_activity_main">MainActivity</string>
+</resources>
