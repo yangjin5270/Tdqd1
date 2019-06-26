@@ -39,7 +39,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void handleMessage(Message msg) {
             progressBar.setVisibility(View.GONE);
-            Toast.makeText(MainActivity.this,"处理完毕",Toast.LENGTH_SHORT).show();
+            switch (msg.what){
+                case 1:
+                    Toast.makeText(MainActivity.this,"处理完毕",Toast.LENGTH_SHORT).show();
+                    break;
+                case 2:
+                    Toast.makeText(MainActivity.this,"文件类型错误",Toast.LENGTH_SHORT).show();
+                    break;
+                default:break;
+            }
+
+
         }
     };
 
@@ -108,7 +118,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         message.what=1;
                         handler.sendMessage(message);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        Message message = handler.obtainMessage();
+                        message.what=2;
+                        handler.sendMessage(message);
+                        //e.printStackTrace();
                     }
                 }
             }).start();
