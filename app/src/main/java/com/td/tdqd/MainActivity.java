@@ -1,6 +1,7 @@
 package com.td.tdqd;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.td.tdqd.util.DBserverices;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -35,16 +37,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     String dataPath="";
 
     private ProgressBar progressBar;
+
     Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
-            progressBar.setVisibility(View.GONE);
+
             switch (msg.what){
                 case 1:
                     Toast.makeText(MainActivity.this,"处理完毕",Toast.LENGTH_SHORT).show();
                     break;
                 case 2:
                     Toast.makeText(MainActivity.this,"文件类型错误",Toast.LENGTH_SHORT).show();
+                    break;
+                case 3:
+                    if(msg.arg1==100){
+                        progressBar.setVisibility(View.GONE);
+                        Toast.makeText(MainActivity.this,"数据导入完毕",Toast.LENGTH_LONG).show();
+                    }else{
+                        progressBar.setProgress(msg.arg1);
+                    }
                     break;
                 default:break;
             }
@@ -67,6 +78,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Button button = (Button)findViewById(R.id.upFileButton);
         button.setOnClickListener(this);
         progressBar = (ProgressBar)findViewById(R.id.progressBar1);
+        progressBar.setVisibility(View.GONE);
+
     }
 
     @Override
@@ -106,17 +119,86 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         char[] chars = new char[1024];
                         FileReader fileReader = new FileReader(file);
                         StringBuffer stringBuffer = new StringBuffer();
-                        while(fileReader.read(chars)!=-1){
-                            stringBuffer.append(chars);
+                        StringBuffer stringBuffer1 = new StringBuffer();
+                        int num;
+                        while((num=fileReader.read(chars))!=-1){
+                            stringBuffer.append(chars,0,num);
+                            //System.out.print(chars);
+                            //System.out.println(num);
                         }
-                        //Thread.sleep(3000);
-                        //Log.i("-------->",stringBuffer.toString());
-                        String[] strings = stringBuffer.toString().split("\n");
-                        Log.i("Array size",String.valueOf(strings.length));
-                        Log.i("String",strings[0]);
-                        Message message = handler.obtainMessage();
+
+                        String[] strings = stringBuffer.toString().split("\r\n");
+
+                        try {
+
+                            int loop = strings.length/100;
+                            int yu = strings.length%100;
+                            int index=0;
+                            for (int i = 0; i < loop; i++) {
+                                stringBuffer1.append("INSERT into name_tables_copy (name_tables_copy.name,name_tables_copy.name_id) VALUES ");
+                                for (int j = 0; j < 100; j++) {
+                                    String[] strings1 = strings[index].split("----");
+                                    if(j==0){
+                                        stringBuffer1.append("(\"");
+                                    }else{
+                                        stringBuffer1.append(",(\"");
+                                    }
+                                    stringBuffer1.append(strings1[0]);
+                                    stringBuffer1.append("\",\"");
+                                    stringBuffer1.append(strings1[1]);
+                                    stringBuffer1.append("\")");
+                                    index++;
+                                }
+                                //System.out.println(stringBuffer1.toString());
+                                new Thread(new DBserverices(stringBuffer1.toString())).start();
+                                stringBuffer1.setLength(0);
+                            }
+
+
+                            stringBuffer1.append("INSERT into name_tables_copy (name_tables_copy.name,name_tables_copy.name_id) VALUES ");
+                            for (int j = 0; j < yu; j++) {
+                                String[] strings1 = strings[index].split("----");
+                                if(j==0){
+                                    stringBuffer1.append("(\"");
+                                }else{
+                                    stringBuffer1.append(",(\"");
+                                }
+                                stringBuffer1.append(strings1[0]);
+                                stringBuffer1.append("\",\"");
+                                stringBuffer1.append(strings1[1]);
+                                stringBuffer1.append("\")");
+                                index++;
+                            }
+                            //System.out.println(stringBuffer1.toString());
+                            new Thread(new DBserverices(stringBuffer1.toString())).start();
+                            stringBuffer1=null;
+                            Double d = Double.valueOf(loop);
+                            Double d1;
+
+                            for (int i=0;i<loop/2;i++){
+                                Message message = handler.obtainMessage();
+                                message.what=3;
+                                d1=(i/d*100);
+                                message.arg1 = d1.intValue();
+                                handler.sendMessage(message);
+                                Thread.sleep(1000);
+                            }
+                            Message message = handler.obtainMessage();
+                            message.what=3;
+                            message.arg1 = 100;
+                            handler.sendMessage(message);
+
+                            DBserverices.closeConnection();
+
+
+
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        /*Message message = handler.obtainMessage();
                         message.what=1;
-                        handler.sendMessage(message);
+                        handler.sendMessage(message);*/
                     } catch (Exception e) {
                         Message message = handler.obtainMessage();
                         message.what=2;
@@ -125,29 +207,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 }
             }).start();
-
         }
-
         super.onActivityResult(requestCode, resultCode, data);
 
     }
 
-    private  String getRealPathFromUri_AboveApi19(Context context, Uri uri) {
-        String filePath = null;
-        String wholeID = DocumentsContract.getDocumentId(uri);
 
-        // 使用':'分割
-        String id = wholeID.split(":")[1];
-
-        String[] projection = {MediaStore.Images.Media.DATA};
-        String selection = MediaStore.Images.Media._ID + "=?";
-        String[] selectionArgs = {id};
-
-        Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,//
-                projection, selection, selectionArgs, null);
-        int columnIndex = cursor.getColumnIndex(projection[0]);
-        if (cursor.moveToFirst()) filePath = cursor.getString(columnIndex);
-        cursor.close();
-        return filePath;
-    }
 }

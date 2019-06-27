@@ -48,7 +48,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             super.handleMessage(msg);
             HashMap info = (HashMap) msg.obj;
             //TODO 正式发布时，取消注释
-            /*if (msg.what == 1) {
+            if (msg.what == 1) {
 
                 if("success".equals(info.get("infoType").toString())){
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
@@ -57,10 +57,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 }else{
                     Toast.makeText(LoginActivity.this,info.get("message").toString(),Toast.LENGTH_SHORT).show();
                 }
-            }*/
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            intent.putExtra("username",usernameEditText.getText().toString());
-            startActivity(intent);
+            }
+
             //Toast.makeText(LoginActivity.this,"handler",Toast.LENGTH_SHORT);
 
         }
