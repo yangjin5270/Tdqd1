@@ -13,6 +13,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.td.tdqd.util.DBserverices;
 
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
@@ -22,6 +23,8 @@ import android.os.Message;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -75,23 +78,44 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         TextView textView = (TextView)findViewById(R.id.textView2);
         textView.setBackgroundColor(android.graphics.Color.RED);
         textView.setText("Hello "+ getIntent().getStringExtra("username"));
         Button button = (Button)findViewById(R.id.upFileButton);
         button.setOnClickListener(this);
+
         progressBar = (ProgressBar)findViewById(R.id.progressBar1);
         progressBar.setVisibility(View.GONE);
 
     }
-
+    @Override
+    public boolean onOptionsItemSelected( MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.exit:
+                ActivitysController.finshAll();
+                break;
+            case R.id.help:
+                Toast.makeText(this,"联系作者",Toast.LENGTH_LONG).show();
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+       getMenuInflater().inflate(R.menu.menu,menu);
+       return true;
+    }
     @Override
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.upFileButton:
                 selectFile();
                 break;
+
                 default:
                     break;
         }
@@ -132,9 +156,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
                         }
 
                         String[] strings = stringBuffer.toString().split("\r\n");
-
                         try {
-
                             int loop = strings.length/100;
                             int yu = strings.length%100;
                             int index=0;
