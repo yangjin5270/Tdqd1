@@ -26,13 +26,15 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.td.tdqd.ActivitysController;
+import com.td.tdqd.BaseActivity;
 import com.td.tdqd.MainActivity;
 import com.td.tdqd.R;
 import com.td.tdqd.util.WjNetVerify;
 
 import java.util.HashMap;
 
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
+public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
 
     private EditText usernameEditText ;

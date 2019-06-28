@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -14,6 +15,7 @@ import com.td.tdqd.util.DBserverices;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentManager;
 
 import android.os.Handler;
 import android.os.Message;
@@ -31,13 +33,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends BaseActivity implements View.OnClickListener{
 
 
     String dataPath="";
-
+    private String TAG="MainActivity";
     private ProgressBar progressBar;
-
+    private long mExitTime;
     Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -51,10 +53,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case 3:
                     if(msg.arg1==100){
+                        progressBar.setProgress(msg.arg1);
                         progressBar.setVisibility(View.GONE);
                         Toast.makeText(MainActivity.this,"数据导入完毕",Toast.LENGTH_LONG).show();
                     }else{
                         progressBar.setProgress(msg.arg1);
+                        //Log.i("progressBar",String.valueOf(msg.arg1));
                     }
                     break;
                 default:break;
@@ -135,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             int yu = strings.length%100;
                             int index=0;
                             for (int i = 0; i < loop; i++) {
-                                stringBuffer1.append("INSERT into name_tables_copy (name_tables_copy.name,name_tables_copy.name_id) VALUES ");
+                                stringBuffer1.append("INSERT into name_tables (name_tables.name,name_tables.name_id) VALUES ");
                                 for (int j = 0; j < 100; j++) {
                                     String[] strings1 = strings[index].split("----");
                                     if(j==0){
@@ -155,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
 
 
-                            stringBuffer1.append("INSERT into name_tables_copy (name_tables_copy.name,name_tables_copy.name_id) VALUES ");
+                            stringBuffer1.append("INSERT into name_tables (name_tables.name,name_tables.name_id) VALUES ");
                             for (int j = 0; j < yu; j++) {
                                 String[] strings1 = strings[index].split("----");
                                 if(j==0){
@@ -172,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             //System.out.println(stringBuffer1.toString());
                             new Thread(new DBserverices(stringBuffer1.toString())).start();
                             stringBuffer1=null;
-                            Double d = Double.valueOf(loop);
+                            Double d = Double.valueOf(loop/2);
                             Double d1;
 
                             for (int i=0;i<loop/2;i++){
@@ -211,6 +215,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onActivityResult(requestCode, resultCode, data);
 
     }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        //ActivitysController.finshAll();
+    }
+
+    public void onBackPressed() {
+
+        if ((System.currentTimeMillis() - mExitTime) > 2000) {
+            Toast.makeText(MainActivity.this, "再按一次退出应用", Toast.LENGTH_SHORT).show();
+            mExitTime = System.currentTimeMillis();
+        } else {
+            //用户退出处理
+            ActivitysController.finshAll();
+        }
+
+
+
+    }
+
 
 
 }

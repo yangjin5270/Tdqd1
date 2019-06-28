@@ -1,4 +1,6 @@
 package com.td.tdqd.util;
+import android.util.Log;
+
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 
 import java.sql.Connection;
@@ -38,7 +40,7 @@ public class DBserverices implements Runnable{
         }
         catch (SQLException e) {
             if(e.toString().contains("Duplicate entry ")){
-                System.out.println("Duplicate entry");
+                Log.i("Database","Duplicate entry");
             }else{
                 e.printStackTrace();
             }

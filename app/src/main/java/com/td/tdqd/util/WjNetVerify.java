@@ -9,7 +9,7 @@ import java.util.HashMap;
 public class WjNetVerify {
 
     public static final String wjUrl="http://web-dx.3600d.net:83/w536646/api.php?";
-    public static final String projectName="10002";//软件编号
+    public static final String projectName="10005";//软件编号
 
     public static final String ReturnSeconds ="1";
 
